@@ -27,6 +27,7 @@ type inputLater struct {
 }
 
 type Later struct {
+	Type    string   `json:"type"`
 	Name    string   `json:"name"`
 	Link    string   `json:"link"`
 	Authors []string `json:"authors"`
@@ -80,6 +81,7 @@ var laterCmd = &cobra.Command{
 		}
 
 		later := Later{
+			Type:   "source",
 			Name:   input.Name,
 			Link:   input.Link,
 			Status: "later",
