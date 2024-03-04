@@ -89,13 +89,19 @@ var laterCmd = &cobra.Command{
 
 		topics := make([]string, 0)
 		for _, t := range strings.Split(input.Topics, ",") {
-			topics = append(topics, strings.TrimSpace(t))
+            topic := strings.TrimSpace(t)
+            if topic != "" {
+                topics = append(topics, topic)
+            }
 		}
 		later.Topics = topics
 
 		authors := make([]string, 0)
 		for _, a := range strings.Split(input.Authors, ",") {
-			authors = append(authors, fmt.Sprintf("[[%v]]", strings.TrimSpace(a)))
+            author := strings.TrimSpace(a)
+            if author != "" {
+                authors = append(authors, fmt.Sprintf("[[%v]]", strings.TrimSpace(a)))
+            }
 		}
 		later.Authors = authors
 
