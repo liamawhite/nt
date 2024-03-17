@@ -2,13 +2,18 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+    cfgFile string
+    logFile *os.File
+)
+
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -16,6 +21,14 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
+    PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+        var err error
+        logFile, err = setupLogging(slog.LevelInfo)
+        if err != nil {
+            return fmt.Errorf("error setting up logging: %w", err)
+        }
+        return nil 
+    },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -63,4 +76,19 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func setupLogging(level slog.Level) (*os.File, error) {
+	path := "nt.log"
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o600)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file for logging: %w", err)
+	}
+
+	l := new(slog.LevelVar)
+	h := slog.NewTextHandler(f, &slog.HandlerOptions{Level: l})
+	slog.SetDefault(slog.New(h))
+	l.Set(level)
+
+	return f, nil
 }
